@@ -6,37 +6,108 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: install tools
-        uses: ./
+      - name: get the latest release version for conftest
+        uses: actions/github-release-info@v1
+        id: latest_conftest_version
         with:
-          cache: false
-          kubectl: latest
-          yq: latest
-          kustomize: latest
-          helm: latest
-          kubeseal: latest
-          kubeval: latest
-          conftest: latest
-          kubeaudit: latest
-          kubeconform: latest
-          kyverno: latest
-      - name: kubeval
-        run: |
-          kustomize build test/kustomize | kubeval --strict --ignore-missing-schemas
-      - name: conftest
-        run: |
-          kustomize build test/kustomize | conftest test -p test/policy -
-      - name: test installed tools
-        run: |
-          kubectl version --client
-          jq --version
-          yq --version
-          kustomize version
-          helm version --client
-          kubeseal --version
-          kubeval --version
-          conftest --version
-          kubeaudit version
-          kubeconform -v
-          kyverno version
+          owner: open-policy-agent
+          repo: conftest
+      - name: get the latest release version for helm
+        uses: actions/github-release-info@v1
+        id: latest_helm_version
+        with:
+          owner: helm
+          repo: helm
+      - name: get the latest release version for kubeaudit
+        uses: actions/github-release-info@v1
+        id: latest_kubeaudit_version
+        with:
+          owner: Shopify
+          repo: kubeaudit
+      - name: get the latest release version for kubeconform
+        uses: actions/github-release-info@v1
+        id: latest_kubeconform_version
+        with:
+          owner: yannh
+          repo: kubeconform
+      - name: get the latest release version for kubectl
+        uses: actions/github-release-info@v1
+        id: latest_kubectl_version
+        with:
+          owner: kubernetes
+          repo: kubectl
+      - name: get the latest release version for kubeseal
+        uses: actions/github-release-info@v1
+        id: latest_kubeseal_version
+        with:
+          owner: bitnami-labs
+          repo: kubeseal
+      - name: get the latest release version for kustomize
+        uses: actions/github-release-info@v1
+        id: latest_kustomize_version
+        with:
+          owner: kubernetes-sigs
+          repo: kustomize
+      - name: get the latest release version for kyverno
+        uses: actions/github-release-info@v1
+        id: latest_kyverno_version
+        with:
+          owner: kyverno
+          repo: kyverno
+      - name: get the latest release version for yq
+        uses: actions/github-release-info@v1
+        id: latest_yq_version
+        with:
+          owner: mikefarah
+          repo: yq
+      # - name: install tools using the latest release version for each tool
+      #   id: install
+      #   uses: ./
+      #   with:
+      #     cache: false
+      #     conftest: ${{ steps.latest_conftest_version.outputs.version }}
+      #     helm: ${{ steps.latest_helm_version.outputs.version }}
+      #     kubeaudit: ${{ steps.latest_kubeaudit_version.outputs.version }}
+      #     kubeconform: ${{ steps.latest_kubeconform_version.outputs.version }}
+      #     kubectl: ${{ steps.latest_kubectl_version.outputs.version }}
+      #     kubeseal: ${{ steps.latest_kubeseal_version.outputs.version }}
+      #     kubeval: ${{ steps.latest_kubeval_version.outputs.version }}
+      #     kustomize: ${{ steps.latest_kustomize_version.outputs.version }}
+      #     kyverno: ${{ steps.latest_kyverno_version.outputs.version }}
+      #     yq: ${{ steps.latest_yq_version.outputs.version }}
+      # - name: validate tool versions
+      #   id: validate_version
+      #   run: |
+      #     echo "validate conftest version"
+      #     INSTALLED_CONFTEST_VERSION=(conftest --version | grep "Conftest:" | awk '{print $NF}')
+      #     if [ "$INSTALLED_CONFTEST_VERSION" != "${{ steps.latest_conftest_version.outputs.version }}" ]; then
+      #       echo "ERROR: installed conftest version does not match latest release version"
+      #       exit 1
+      #     fi
+      #     echo "validate helm version"
+      #     INSTALLED_HELM_VERSION=(helm version --short | cut -d " " -f 2)
+
+
+      # - name: kubeval
+      #   run: |
+      #     kustomize build test/kustomize | kubeval --strict --ignore-missing-schemas
+      # - name: conftest
+      #   run: |
+      #     kustomize build test/kustomize | conftest test -p test/policy -
+
+
+
+
+      # - name: ensure that each installed tool matches the latest release version
+      #   run: |
+      #     kubectl version --client
+      #     jq --version
+      #     yq --version
+      #     kustomize version
+      #     helm version --client
+      #     kubeseal --version
+      #     kubeval --version
+      #     conftest --version
+      #     kubeaudit version
+      #     kubeconform -v
+      #     kyverno version
